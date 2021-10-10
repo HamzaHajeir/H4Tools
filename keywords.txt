@@ -1,0 +1,66 @@
+#######################################
+# Syntax Coloring Map For H4Plugins
+#######################################
+
+#######################################
+# Library (	KEYWORD1)
+#######################################
+
+H4Tools	KEYWORD1
+
+#######################################
+# Datatypes 
+#######################################
+
+H4T_HEAP_LIMITS	KEYWORD1
+H4T_FILE_HANDLER	KEYWORD1
+H4T_NVP_MAP	KEYWORD1
+H4T_VS	KEYWORD1
+H4T_FN_RFC_START	KEYWORD1
+H4T_FN_RFC_CHUNK	KEYWORD1
+H4T_FN_RFC_END	KEYWORD1
+H4T_FN_LOOKUP	KEYWORD1
+
+#######################################
+# Methods and Functions (	KEYWORD2)
+#######################################
+
+_HAL_analogFrequency	KEYWORD2
+_HAL_analogWrite	KEYWORD2
+_HAL_attachAnalogPin	KEYWORD2
+_HAL_feedWatchdog	KEYWORD2
+_HAL_freeHeap	KEYWORD2
+_HAL_isAnalogInput	KEYWORD2
+_HAL_isAnalogOutput	KEYWORD2
+_HAL_maxHeapBlock	KEYWORD2
+_HAL_uniqueName	KEYWORD2
+
+dumphex	KEYWORD2
+encodeUTF8	KEYWORD2
+heapLimits	KEYWORD2
+hex2uint	KEYWORD2
+join	KEYWORD2
+json2nvp	KEYWORD2
+lowercase	KEYWORD2
+ltrim	KEYWORD2
+nvp2json	KEYWORD2
+readFile	KEYWORD2
+readFileChunks	KEYWORD2
+replaceAll	KEYWORD2
+replaceParams	KEYWORD2
+rtrim	KEYWORD2
+split	KEYWORD2
+stringFromInt	KEYWORD2
+stringIsAlpha	KEYWORD2
+stringIsNumeric	KEYWORD2
+trim	KEYWORD2
+uppercase	KEYWORD2
+urldecode	KEYWORD2
+urlencode	KEYWORD2
+writeFile	KEYWORD2
+
+flattenMap	KEYWORD2
+
+#######################################
+# Constants (	LITERAL1)
+#######################################
