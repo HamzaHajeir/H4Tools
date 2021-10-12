@@ -47,20 +47,13 @@ Perhaps the quickest explanation for this library is to show the *other librarie
 
 || Name | Provides | Notes |
 | :---: | :----------  | :--- | :--- |
-|![roadmap](assets/common/h4_icon.jpg)|[H4](https://github.com/philbowles/H4)|Scheduler/Async Timers| 1 |
-|![roadmap](assets/common/tools_icon.jpg)|[H4Tools](https://github.com/philbowles/H4Tools)|'32/'8266 HAL and utility functions| 2 :point_left: *YOU ARE HERE* |
+|![roadmap](assets/common/h4_icon.jpg)|[H4](https://github.com/philbowles/H4)|Scheduler/Async Timers - core of all multitasking functions| |
+|![roadmap](assets/common/tools_icon.jpg)|[H4Tools](https://github.com/philbowles/H4Tools)|'32/'8266 HAL and utility functions| :point_left: *YOU ARE HERE* |
 |![roadmap](assets/common/h4async_icon.jpg)|[H4AsyncTCP](https://github.com/philbowles/H4AsyncTCP)| Asynchronous TCP RX/TX| |
-|![roadmap](assets/common/pangolin_icon.jpg)|[H4AsyncMQTT](https://github.com/philbowles/H4AsyncMQTT)| Asynchronous MQTT c/w auto-reconnect and *full* QoS0/1/2 |3 |
-|![roadmap](assets/common/armadillo_icon.jpg)|[H4AsyncHTTP](https://github.com/philbowles/H4AsyncHTTP)| Asynchronous remote GET / POST etc |4 |
+|![roadmap](assets/common/pangolin_icon.jpg)|[H4AsyncMQTT](https://github.com/philbowles/H4AsyncMQTT)| Asynchronous MQTT c/w auto-reconnect and *full* QoS0/1/2 | |
+|![roadmap](assets/common/armadillo_icon.jpg)|[H4AsyncHTTP](https://github.com/philbowles/H4AsyncHTTP)| Asynchronous remote GET / POST etc | |
 |![roadmap](assets/common/h4asws_icon.jpg)|[H4AsyncWebServer](https://github.com/philbowles/H4AsyncWebServer)| Asynchronous Web Server + fast webSockets + SSE| |
 |![roadmap](assets/common/h4p_icon.jpg)|[H4Plugins](https://github.com/philbowles/H4Plugins)| Fully-featured IOT Apps multitasking framework| |
-
-*Notes*
-
-1. [Why "H4" ?](tba)
-2. [Why "Cuban Mechanics" ?](tba)
-3. [Why a pangolin ?](tba)
-4. We already have a pangolin, why *not* an armadillo?
 
 ---
 
@@ -82,8 +75,6 @@ I am currently in discussions to add a PIO install to the standard [H4 Installer
 # Installation
 
 As well as making sure you have the [Prerequisites](#prerequisites) installed, this library and all other H4 libraries *must* be installed using the [H4 Installer](https://github.com/philbowles/h4installer). This ensures that all versions match and that other  additional special functions are included e.g. Addition of optimised board definitions in H4Plugins.
-
-If you install any of the libraries manually, then you are "on your own" :smile:
 
 ---
 
@@ -115,14 +106,19 @@ bool        _HAL_isAnalogInput(uint8_t p);
 bool        _HAL_isAnalogOutput(uint8_t p);
 uint32_t    _HAL_maxHeapBlock(); // Maxium size of available memory block that can be allocated from heap
 string      _HAL_uniqueName(const string& prefix); // prefix defaults to "ESP8266" or "ESP32", appends unique H/W chip ID
+/*
+  General purpose / string manipulation
+*/
+using H4T_HEAP_LIMITS   = std::pair<size_t,size_t>;
+using H4T_FILE_HANDLER  = std::function<void(const char*,size_t n)>;
+using H4T_NVP_MAP       = std::unordered_map<std::string,std::string>;
+using H4T_VS            = std::vector<std::string>;
+using H4T_FN_RFC_START  = std::function<void(size_t)>;
+using H4T_FN_RFC_CHUNK  = std::function<void(const uint8_t*,size_t)>;
+using H4T_FN_RFC_END    = std::function<void(void)>;
+using H4T_FN_LOOKUP     = std::function<std::string(const std::string&)>;
 //
-//  General purpose / string manipulation
-//
-// NVP = Name / Value pair refers to a std::map<std::string,std::string>
-//
-// json refers to "simple json" only: A single, flat hierarchy, anything more complex needs e.g. ArduinoJson lib
-//
-// While the functions here dela with valid json, they deal only with an extremely limited and specific subset.
+// While the functions here deal with valid json, they deal only with an extremely limited and specific subset.
 //  This can save a LOT of space by avoiding external JSON libraries (e.g. ArduinoJson) where you have control over the input
 //  (e.g. from your own internal webserver(s)) and cane ensure:
 //  * No arrays
@@ -133,30 +129,41 @@ string      _HAL_uniqueName(const string& prefix); // prefix defaults to "ESP826
 // Example:
 //  {"name":"phil","firmware":"H4","numeric","666"}
 //
-void            dumphex(const uint8_t* mem, size_t len); // pretty formatted hex dump len bytes at address mem
-string          encodeUTF8(const string &);
-string          flattenMap(const map<string,string>& m,const string& fs,const string& rs,function<string(const string&)> f=[](const string& s){ return s; });
-string          flattenMap(const unordered_map<string,string>& m,const string& fs,const string& rs,function<string(const string&)> f=[](const string& s){ return s; });
-uint32_t        hex2uint(const uint8_t* str); // converts string of x digits to decimal e.g. 02AC becomes 684
-string          join(const vector<string>& vs,const char* delim="\n"); // flattens/vector/into/string/delimited/by/whatever/u/want
-map<string,string> json2nvp(const string& s); /// takes "simple json" and creates name value / pairs inverse of nvp2json
-string          lowercase(string); // does what it says on the tin
-string          ltrim(const string& s, const char d=' '); // trims leftmost character(s)
-string          nvp2json(const map<string,string>& nvp);// flatens NVP into string representation of simple json inverse of json2nvp
-string          replaceAll(const string& s,const string& f,const string& r); // replace all occurrences of f in s with r
-string          rtrim(const string& s, const char d=' '); // trims rightmost character(s)
-vector<string>  split(const string& s, const char* delimiter="\n"); // decomposes "a/b/c..." into {"a","b","c",...}
-string          stringFromInt(int i,const char* fmt="%d"); // ESP8266 does not have C's itoa etc - this does kinda the same job
-bool            stringIsAlpha(const string& s); // true if string is entirely "visible ASCII"
-bool            stringIsNumeric(const string& s); // true if string will covert to a valid integer
-string          trim(const string& s, const char d=' '); // trims both ends, e.g. returs ltrim(rtrim(x))
-string          uppercase(string); // DOES WHAT IT SAYS ON THE TINE
-string          urlencode(const string &s); // pretty standard
+void                    dumphex(const uint8_t* mem, size_t len);
+std::string             encodeUTF8(const std::string &);
+H4T_HEAP_LIMITS         heapLimits();
+uint32_t                hex2uint(const uint8_t* str);
+std::string 		    join(const H4T_VS& vs,const char* delim="\n");
+std::map<std::string,std::string> json2nvp(const std::string& s);
+std::string             lowercase(std::string);
+std::string             ltrim(const std::string& s, const char d=' ');
+std::string             nvp2json(const std::map<std::string,std::string>& nvp);
+std::string             readFile(const char* path);
+void                    readFileChunks(const char* path,size_t chunk,H4T_FN_RFC_CHUNK fc,H4T_FN_RFC_START fs=nullptr,H4T_FN_RFC_END fe=nullptr);
+std::string             replaceAll(const std::string& s,const std::string& f,const std::string& r);
+std::string             replaceParams(const std::string& s,H4T_FN_LOOKUP f);
+std::string             rtrim(const std::string& s, const char d=' ');
+H4T_VS                  split(const std::string& s, const char* delimiter="\n");
+std::string		        stringFromInt(int i,const char* fmt="%d");
+bool		            stringIsAlpha(const std::string& s);
+bool		            stringIsNumeric(const std::string& s);
+std::string             trim(const std::string& s, const char d=' ');
+std::string             uppercase(std::string);
+std::string             urldecode(const std::string &s);
+std::string             urlencode(const std::string &s);
+size_t                  writeFile(const char* fn,const std::string& data,const char* mode="w");
+//
+template<typename T>
+std::string flattenMap(const T& m,const std::string& fs=UNIT_SEPARATOR,const std::string& rs=RECORD_SEPARATOR,std::function<std::string(const std::string&)> f=[](const std::string& s){ return s; }){
+    std::string flat;
+    for(auto const& nvp:m) flat+=f(nvp.first)+fs+f(nvp.second)+rs;
+    flat.pop_back();
+    return flat;
+}
 ```
 
 ## Why no example code?
 
-Two reasons:
 1) The functions are small, simple and mostly obvious
 2) There are dozens of example of usage littered throughout all of the other libraries and example code
 
