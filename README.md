@@ -4,7 +4,9 @@
 
 ## ArduinoIDE library of utility functions required by other H4 libraries
 
-## Version 0.0.2 (10/10/2021)
+## Version 0.0.3 (19/10/2021)
+
+`urldecode` amended to replace '+' with space in `application/x-www-form-urlencoded` data
 
 ---
 
@@ -24,7 +26,7 @@ Licence: ![licence](https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png) Crea
 * [Where does it fit in "The IOT hierarchy of needs"?](#the-iot-hierarchy-of-needs)
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
-* [Issues](#issues)
+* [Raising Issues](#issues)
 * [API](#api)
 
 ---
@@ -76,7 +78,7 @@ I am currently in discussions to add a PIO install to the standard [H4 Installer
 
 Soon* all H4 libraries will use the [H4 Installer](https://github.com/philbowles/h4installer). This ensures that all versions match and that other additional special functions are included e.g. Addition of optimised board definitions in H4Plugins...
 
-...Until that's ready, install this library manually byt downloading the zip file and using the ArduinoIDE to "add zip library". (Luckily, it has no extra tasks that would require the full H4 installer)
+...Until that's ready, install this library manually by downloading the zip file and using the ArduinoIDE to "add zip library". (Luckily, it has no extra tasks that would require the full H4 installer)
 
 * = Don't ask :) 
 

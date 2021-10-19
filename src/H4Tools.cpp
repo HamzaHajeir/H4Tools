@@ -215,9 +215,7 @@ void readFileChunks(const char* path,size_t chunk,H4T_FN_RFC_CHUNK fc,H4T_FN_RFC
     File f=HAL_FS.open(path, "r");
     if(f) {
       size_t lump=0;
-//      Serial.printf("CHUNX %u <-- 0 %u\n",chunk,_HAL_freeHeap());
       uint8_t* buff=static_cast<uint8_t*>(malloc(chunk));
-//      Serial.printf("CHUNX <-- 1 %u\n",_HAL_freeHeap());
       size_t bytesRemaining;
       size_t tot;
       tot=bytesRemaining=f.size();
@@ -229,11 +227,8 @@ void readFileChunks(const char* path,size_t chunk,H4T_FN_RFC_CHUNK fc,H4T_FN_RFC
       }
       f.close();
       free(buff);
-//      Serial.printf("CHUNX <-- 2 %u\n",_HAL_freeHeap());
       if(fe) fe();
-//      Serial.printf("CHUNX <-- 3 %u\n",_HAL_freeHeap());
     } else if(fs) fs(0);
-//    Serial.printf("CHUNX --> %u\n",_HAL_freeHeap());
 }
 
 std::string replaceAll(const std::string& s,const std::string& f,const std::string& r){
@@ -342,10 +337,11 @@ std::string urldecode(const std::string &s) { /// optimise this!!!
             ch=static_cast<char>(ii);
             ret+=ch;
             i=i+2;
-        } else ret+=s[i];
+        } else ret+=s[i]=='+' ? ' ':s[i];
     }
     return (ret);
 }
+
 size_t writeFile(const char* fn,const std::string& data,const char* mode){
     File b=HAL_FS.open(fn, mode);
     b.print(data.data());

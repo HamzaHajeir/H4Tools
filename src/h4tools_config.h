@@ -1,4 +1,4 @@
-#define H4T_VERSION "0.0.2"
+#define H4T_VERSION "0.0.3"
 
 #define H4T_DEBUG                   0
 
