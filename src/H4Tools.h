@@ -90,6 +90,7 @@ std::string             readFile(const char* path);
 void                    readFileChunks(const char* path,size_t chunk,H4T_FN_RFC_CHUNK fc,H4T_FN_RFC_START fs=nullptr,H4T_FN_RFC_END fe=nullptr);
 std::string             replaceAll(const std::string& s,const std::string& f,const std::string& r);
 std::string             replaceParams(const std::string& s,H4T_FN_LOOKUP f);
+std::string             replaceParams(const std::string& s,H4T_NVP_MAP& nvp);
 std::string             rtrim(const std::string& s, const char d=' ');
 H4T_VS                  split(const std::string& s, const char* delimiter="\n");
 std::string		        stringFromInt(int i,const char* fmt="%d");

@@ -240,7 +240,7 @@ std::string replaceAll(const std::string& s,const std::string& f,const std::stri
     }
     return tmp;
 }
-
+// rationalise these two!!!!!!!!!!!!!
 std::string replaceParams(const std::string& s,H4T_FN_LOOKUP f){
     int i=0;
 	int j=0;
@@ -251,6 +251,26 @@ std::string replaceParams(const std::string& s,H4T_FN_LOOKUP f){
             if(j){
                 std::string v=s.substr(j,i-j);
                 rv.append(f(v));
+                j=0;
+            }
+            else j=i+1;
+        } else if(!j) rv.push_back(s[i]);
+        i++;
+	}
+    rv.shrink_to_fit();
+	return rv.c_str();
+}
+
+std::string replaceParams(const std::string& s,H4T_NVP_MAP& nvp){
+    int i=0;
+	int j=0;
+	std::string rv;
+    rv.reserve((s.size()*115)/100);
+	while(i < s.size()){
+        if(s[i]=='%'){
+            if(j){
+                std::string v=s.substr(j,i-j);
+                rv.append( nvp.count(v) ? nvp[v]:"%"+v+"%" );
                 j=0;
             }
             else j=i+1;
