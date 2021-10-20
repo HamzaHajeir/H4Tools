@@ -4,9 +4,11 @@
 
 ## ArduinoIDE library of utility functions required by other H4 libraries
 
-## Version 0.0.3 (19/10/2021)
+## Version 0.0.4 (20/10/2021)
 
-`urldecode` amended to replace '+' with space in `application/x-www-form-urlencoded` data
+Overload of `replaceParams` added
+
+[Release Notes](docs/relnotes.md)
 
 ---
 
