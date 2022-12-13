@@ -31,6 +31,7 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
 */
 #include"H4Tools.h"
 
+#ifdef EMBEDDED_PLATFORM
 #if defined(ARDUINO_ARCH_ESP32)
     #include "esp_task_wdt.h"
     uint32_t         h4channel=0;
@@ -108,6 +109,52 @@ H4T_HEAP_LIMITS heapLimits(){
     hl.second=(_HAL_freeHeap() * H4T_HEAP_CUTIN_PC) / 100;
     return hl;
 }
+
+namespace h4t
+{
+
+std::string readFile(const char* fn){
+	std::string rv="";
+        File f=HAL_FS.open(fn, "r");
+        if(f && f.size()) {
+            int n=f.size();
+            uint8_t* buff=(uint8_t *) malloc(n);
+            f.readBytes((char*) buff,n);
+            rv.assign((const char*) buff,n);
+            free(buff);
+        }
+        f.close();
+	return rv;	
+}
+
+void readFileChunks(const char* path,size_t chunk,H4T_FN_RFC_CHUNK fc,H4T_FN_RFC_START fs,H4T_FN_RFC_END fe){
+    File f=HAL_FS.open(path, "r");
+    if(f) {
+      size_t lump=0;
+      uint8_t* buff=static_cast<uint8_t*>(malloc(chunk));
+      size_t bytesRemaining;
+      size_t tot;
+      tot=bytesRemaining=f.size();
+      if(fs) fs(tot);
+      while(bytesRemaining-=lump){
+         lump=std::min(bytesRemaining,chunk);// < chunk ? bytesRemaining:chunk;
+         f.readBytes((char*) buff,lump);
+         fc(buff,lump);
+      }
+      f.close();
+      free(buff);
+      if(fe) fe();
+    } else if(fs) fs(0);
+}
+size_t writeFile(const char* fn,const std::string& data,const char* mode){
+    File b=HAL_FS.open(fn, mode);
+    b.print(data.data());
+    b.close();
+    return data.size(); // fix this!!!!!!!!!!!!
+}
+}
+
+#endif
 
 uint32_t hex2uint(const uint8_t* str){
     size_t res = 0;
@@ -196,41 +243,6 @@ std::string nvp2json(const std::map<std::string,std::string>& nvp){
   j.pop_back();
   return j.append("}");
 }
-
-std::string readFile(const char* fn){
-	std::string rv="";
-        File f=HAL_FS.open(fn, "r");
-        if(f && f.size()) {
-            int n=f.size();
-            uint8_t* buff=(uint8_t *) malloc(n);
-            f.readBytes((char*) buff,n);
-            rv.assign((const char*) buff,n);
-            free(buff);
-        }
-        f.close();
-	return rv;	
-}
-
-void readFileChunks(const char* path,size_t chunk,H4T_FN_RFC_CHUNK fc,H4T_FN_RFC_START fs,H4T_FN_RFC_END fe){
-    File f=HAL_FS.open(path, "r");
-    if(f) {
-      size_t lump=0;
-      uint8_t* buff=static_cast<uint8_t*>(malloc(chunk));
-      size_t bytesRemaining;
-      size_t tot;
-      tot=bytesRemaining=f.size();
-      if(fs) fs(tot);
-      while(bytesRemaining-=lump){
-         lump=std::min(bytesRemaining,chunk);// < chunk ? bytesRemaining:chunk;
-         f.readBytes((char*) buff,lump);
-         fc(buff,lump);
-      }
-      f.close();
-      free(buff);
-      if(fe) fe();
-    } else if(fs) fs(0);
-}
-
 std::string replaceAll(const std::string& s,const std::string& f,const std::string& r){
     std::string tmp=s;
     size_t pos = tmp.find(f);
@@ -362,9 +374,3 @@ std::string urldecode(const std::string &s) { /// optimise this!!!
     return (ret);
 }
 
-size_t writeFile(const char* fn,const std::string& data,const char* mode){
-    File b=HAL_FS.open(fn, mode);
-    b.print(data.data());
-    b.close();
-    return data.size(); // fix this!!!!!!!!!!!!
-}
