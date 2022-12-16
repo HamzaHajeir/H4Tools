@@ -75,6 +75,7 @@ bool            _HAL_isAnalogInput(uint8_t p);
 bool            _HAL_isAnalogOutput(uint8_t p);
 uint32_t        _HAL_maxHeapBlock();
 std::string     _HAL_uniqueName(const std::string& prefix);
+std::string     _HAL_macAddress();
 
 #if H4T_DEBUG
 void            dumpvs(const H4T_VS& vs);

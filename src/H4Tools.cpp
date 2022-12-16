@@ -54,7 +54,8 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
     }
     bool        _HAL_isAnalogOutput(uint8_t p){ return h4channelmap.count(p); }
     uint32_t    _HAL_maxHeapBlock(){ return heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT); }
-    std::string _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(stringFromInt(ESP.getEfuseMac() & 0xFFFFFF,"%06X")); }
+    std::string _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(_HAL_macAddress()); }
+    std::string _HAL_macAddress() { return stringFromInt((ESP.getEfuseMac() >> 24) & 0xFFFFFF,"%06X"); }
 #else
     extern "C" {
         #include "user_interface.h" // what for???
@@ -70,7 +71,8 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
         return std::find(adc.begin(),adc.end(),p)!=adc.end();
     }
     uint32_t    _HAL_maxHeapBlock(){ return ESP.getMaxFreeBlockSize(); }
-    std::string _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(stringFromInt(ESP.getChipId(),"%06X")); }
+    std::string _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(_HAL_macAddress()); }
+    std::string _HAL_macAddress() { return stringFromInt(ESP.getChipId(),"%06X"); }
 #endif
 //
 //
