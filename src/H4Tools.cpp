@@ -43,6 +43,10 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
         ledcAttachPin(pin, h4channel);
         h4channel+=2;
     }
+    void        _HAL_detachAnalogPin(uint8_t pin){
+        if (h4channelmap.count(pin))
+            ledcDetachPin(pin);
+    }
     void        _HAL_analogFrequency(uint8_t pin,size_t f){ ledcSetup(h4channelmap[pin], f, 10); }
     
     void        _HAL_analogWrite(uint8_t pin,uint32_t f){ ledcWrite(h4channelmap[pin], f); }

@@ -69,6 +69,7 @@ using H4T_FN_LOOKUP     = std::function<std::string(const std::string&)>;
 void            _HAL_analogFrequency(uint8_t pin,size_t f=H4T_PWM_DEFAULT);
 void            _HAL_analogWrite(uint8_t pin, uint32_t value);
 void            _HAL_attachAnalogPin(uint8_t pin);
+void            _HAL_detachAnalogPin(uint8_t pin);
 void            _HAL_feedWatchdog();
 uint32_t        _HAL_freeHeap();
 bool            _HAL_isAnalogInput(uint8_t p);
