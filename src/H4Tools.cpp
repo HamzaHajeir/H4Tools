@@ -332,8 +332,8 @@ bool stringIsAlpha(const std::string& s){
 }
 
 bool stringIsNumeric(const std::string& s){ 
-    std::string abs=(s[0]=='-') ? std::string(++s.begin(),s.end()):s; // allow leading minus
-    return all_of(abs.begin(), abs.end(), ::isdigit);
+    std::string abs=(s[0]=='-' || s[0]=='+') ? std::string(++s.begin(),s.end()):s; // allow leading minus
+    return !s.empty() && all_of(abs.begin(), abs.end(), ::isdigit);
 }
 
 std::string trim(const std::string& s, const char d){ return(ltrim(rtrim(s,d),d)); }
