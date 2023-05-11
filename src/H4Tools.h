@@ -44,6 +44,8 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
 #define CSTR(x) x.c_str()
 
 
+#include"mbx.h"
+
 #define RECORD_SEPARATOR "|"
 #define UNIT_SEPARATOR "~"
 
@@ -56,16 +58,13 @@ using H4T_FN_RFC_CHUNK  = std::function<void(const uint8_t*,size_t)>;
 using H4T_FN_RFC_END    = std::function<void(void)>;
 using H4T_FN_LOOKUP     = std::function<std::string(const std::string&)>;
 
+#ifdef ARDUINO_ARCH_ESP32 || defined (ARDUINO_ARCH_ESP8266)
+#define EMBEDDED_PLATFORM
+#endif
 
 #ifdef EMBEDDED_PLATFORM
-// #ifdef ARDUINO_ARCH_ESP8266
-// #else
-  #include<LittleFS.h>
-  #define HAL_FS LittleFS
-//   #include<FS.h>
-//   #include<SPIFFS.h>
-//   #define HAL_FS SPIFFS
-// #endif
+#include<LittleFS.h>
+#define HAL_FS LittleFS
 void            _HAL_analogFrequency(uint8_t pin,size_t f=H4T_PWM_DEFAULT);
 void            _HAL_analogWrite(uint8_t pin, uint32_t value);
 void            _HAL_attachAnalogPin(uint8_t pin);
@@ -89,6 +88,8 @@ std::string             readFile(const char* path);
 void                    readFileChunks(const char* path,size_t chunk,H4T_FN_RFC_CHUNK fc,H4T_FN_RFC_START fs=nullptr,H4T_FN_RFC_END fe=nullptr);
 size_t                  writeFile(const char* fn,const std::string& data,const char* mode="w");
 }
+
+size_t inline       getMaxPayloadSize(){ return (_HAL_maxHeapBlock() - H4T_HEAP_SAFETY) / 2 ; }
 #endif
 
 
@@ -97,10 +98,10 @@ size_t                  writeFile(const char* fn,const std::string& data,const c
 std::string             encodeUTF8(const std::string &);
 uint32_t                hex2uint(const uint8_t* str);
 std::string 		    join(const H4T_VS& vs,const char* delim="\n");
-std::map<std::string,std::string> json2nvp(const std::string& s);
+std::unordered_map<std::string,std::string> json2nvp(const std::string& s);
 std::string             lowercase(std::string);
 std::string             ltrim(const std::string& s, const char d=' ');
-std::string             nvp2json(const std::map<std::string,std::string>& nvp);
+std::string             nvp2json(const std::unordered_map<std::string,std::string>& nvp);
 
 std::string             replaceAll(const std::string& s,const std::string& f,const std::string& r);
 std::string             replaceParams(const std::string& s,H4T_FN_LOOKUP f);

@@ -213,8 +213,8 @@ std::string encodeUTF8(const std::string& s){
     return value; 
 }
 
-std::map<std::string,std::string> json2nvp(const std::string& s){
-    std::map<std::string,std::string> J;
+std::unordered_map<std::string,std::string> json2nvp(const std::string& s){
+    std::unordered_map<std::string,std::string> J;
     if(s.size() > 7){
         std::string json=ltrim(rtrim(ltrim(rtrim(s,']'),'['),'}'),'{');
         size_t i=json.find("\":");
@@ -243,7 +243,7 @@ std::string ltrim(const std::string& s, const char d){
 	return rv;	
 }
 
-std::string nvp2json(const std::map<std::string,std::string>& nvp){
+std::string nvp2json(const std::unordered_map<std::string,std::string>& nvp){
   std::string j="{";
   for(auto const& m:nvp) j+="\""+m.first+"\":\""+m.second+"\",";
   j.pop_back();
