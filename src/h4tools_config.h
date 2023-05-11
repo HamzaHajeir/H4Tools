@@ -11,6 +11,7 @@
     #include <stdio.h>
     #define H4AT_PRINTF(...) printf(__VA_ARGS__)
 #endif
+#endif
     template<int I, typename... Args>
     void H4T_PRINT(const char* fmt, Args... args) {
         #ifdef ARDUINO_ARCH_ESP32
