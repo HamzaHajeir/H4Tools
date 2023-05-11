@@ -1,11 +1,15 @@
 #pragma once
-#define H4T_VERSION "0.0.4"
+#define H4T_VERSION "0.0.5"
 
 #define H4T_DEBUG                   0
 
 #if H4T_DEBUG
-#ifndef H4AT_PRINTF && defined(EMBEDDED_PLATFORM)
+#ifndef H4AT_PRINTF
+#ifdef EMBEDDED_PLATFORM
     #define H4T_PRINTF(...) Serial.printf(__VA_ARGS__)
+#else
+    #include <stdio.h>
+    #define H4AT_PRINTF(...) printf(__VA_ARGS__)
 #endif
     template<int I, typename... Args>
     void H4T_PRINT(const char* fmt, Args... args) {

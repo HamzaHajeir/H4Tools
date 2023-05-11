@@ -4,6 +4,9 @@
 
 ## ArduinoIDE library of utility functions required by other H4 libraries
 
+## Version 0.0.5 (11/05/2023)
+- Moves in mbx.
+- Changes `map<string,string>` to `unordered_map<string,string>`.
 ## Version 0.0.4 (20/10/2021)
 
 Overload of `replaceParams` added
