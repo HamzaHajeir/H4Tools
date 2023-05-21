@@ -1,5 +1,5 @@
 #pragma once
-#define H4T_VERSION "0.0.5"
+#define H4T_VERSION "0.0.6"
 
 #define H4T_DEBUG                   0
 
@@ -15,9 +15,11 @@
     template<int I, typename... Args>
     void H4T_PRINT(const char* fmt, Args... args) {
         #ifdef ARDUINO_ARCH_ESP32
-        if (H4T_DEBUG >= I) H4T_PRINTF(std::string(std::string("H4T:%d: H=%u M=%u S=%u ")+fmt).c_str(),I,_HAL_freeHeap(),_HAL_maxHeapBlock(),uxTaskGetStackHighWaterMark(NULL),args...);
+        // if (H4T_DEBUG >= I) H4T_PRINTF(std::string(std::string("H4T:%d: H=%u M=%u S=%u ")+fmt).c_str(),I,_HAL_freeHeap(),_HAL_maxHeapBlock(),uxTaskGetStackHighWaterMark(NULL),args...);
+        if (H4T_DEBUG >= I) H4T_PRINTF(fmt,args...);
         #else
-        if (H4T_DEBUG >= I) H4T_PRINTF(std::string(std::string("H4T:%d: H=%u M=%u ")+fmt).c_str(),I,_HAL_freeHeap(),_HAL_maxHeapBlock(),args...);
+        // if (H4T_DEBUG >= I) H4T_PRINTF(std::string(std::string("H4T:%d: H=%u M=%u ")+fmt).c_str(),I,_HAL_freeHeap(),_HAL_maxHeapBlock(),args...);
+        if (H4T_DEBUG >= I) H4T_PRINTF(fmt,args...);
         #endif
     }
     #define H4T_PRINT1(...) H4T_PRINT<1>(__VA_ARGS__)

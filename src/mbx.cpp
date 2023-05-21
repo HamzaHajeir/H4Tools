@@ -67,3 +67,12 @@ uint8_t* mbx::getMemory(size_t size){
     } else H4T_PRINT2("********** MBX FAIL STATUS: FH=%u MXBLK=%u ASKED:%u\n",_HAL_freeHeap(),_HAL_maxHeapBlock(),size);
     return mm;
 }
+
+void mbx::            dump(size_t slice){
+#if H4T_DEBUG
+    H4T_PRINT1("Memory POOL DUMP s=%d\n", pool.size());
+    for (auto &p:pool) Serial.printf("%p\t",p);
+    Serial.println();
+    for(auto &p:pool) dumphex(p,slice);
+#endif
+}
