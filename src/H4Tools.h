@@ -58,7 +58,7 @@ using H4T_FN_RFC_CHUNK  = std::function<void(const uint8_t*,size_t)>;
 using H4T_FN_RFC_END    = std::function<void(void)>;
 using H4T_FN_LOOKUP     = std::function<std::string(const std::string&)>;
 
-#ifdef ARDUINO_ARCH_ESP32 || defined (ARDUINO_ARCH_ESP8266)
+#if (defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_ESP8266)) && !defined(EMBEDDED_PLATFORM)
 #define EMBEDDED_PLATFORM
 #endif
 
