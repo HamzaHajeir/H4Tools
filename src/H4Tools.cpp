@@ -51,13 +51,14 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
     
     void        _HAL_analogWrite(uint8_t pin,uint32_t f){ ledcWrite(h4channelmap[pin], f); }
     void        _HAL_feedWatchdog(){ esp_task_wdt_reset(); }
-    uint32_t    _HAL_freeHeap(){ return heap_caps_get_free_size(MALLOC_CAP_DEFAULT); }
+    uint32_t    _HAL_freeHeap(uint32_t caps){ return heap_caps_get_free_size(caps); }
     bool        _HAL_isAnalogInput(uint8_t p){
         std::vector<uint8_t> adc={5,8,10,11,12,13,14,15,16,17,18,20,21,22,23,24};
         return std::find(adc.begin(),adc.end(),p)!=adc.end();
     }
     bool        _HAL_isAnalogOutput(uint8_t p){ return h4channelmap.count(p); }
-    uint32_t    _HAL_maxHeapBlock(){ return heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT); }
+    uint32_t    _HAL_maxHeapBlock(uint32_t caps){ return heap_caps_get_largest_free_block(caps); }
+    uint32_t    _HAL_minHeapBlock(uint32_t caps){ return heap_caps_get_minimum_free_size(caps); }
     std::string _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(_HAL_macAddress()); }
     std::string _HAL_macAddress() { return stringFromInt((ESP.getEfuseMac() >> 24) & 0xFFFFFF,"%06X"); }
 #else
@@ -68,13 +69,14 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
     void        _HAL_analogFrequency(uint8_t pin,size_t f){ analogWriteFreq(f); }
     void        _HAL_analogWrite(uint8_t pin, uint32_t value){ analogWrite(pin,value); }
     void        _HAL_feedWatchdog(){ ESP.wdtFeed(); }
-    uint32_t    _HAL_freeHeap(){ return ESP.getFreeHeap(); }
+    uint32_t    _HAL_freeHeap(uint32_t caps){ return ESP.getFreeHeap(); }
     bool        _HAL_isAnalogInput(uint8_t p){ return p==A0; }
     bool        _HAL_isAnalogOutput(uint8_t p){         
         std::vector<uint8_t> adc={5,6,16,19};
         return std::find(adc.begin(),adc.end(),p)!=adc.end();
     }
-    uint32_t    _HAL_maxHeapBlock(){ return ESP.getMaxFreeBlockSize(); }
+    uint32_t    _HAL_maxHeapBlock(uint32_t caps){ return ESP.getMaxFreeBlockSize(); }
+    uint32_t    _HAL_minHeapBlock(uint32_t caps){ return 0 }
     std::string _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(_HAL_macAddress()); }
     std::string _HAL_macAddress() { return stringFromInt(ESP.getChipId(),"%06X"); }
 #endif

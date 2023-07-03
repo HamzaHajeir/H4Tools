@@ -63,6 +63,13 @@ using H4T_FN_LOOKUP     = std::function<std::string(const std::string&)>;
 #endif
 
 #ifdef EMBEDDED_PLATFORM
+
+#ifdef ESP32
+#define H4T_DEFAULT_CAPS    MALLOC_CAP_DEFAULT
+#else
+#define H4T_DEFAULT_CAPS    0
+#endif
+
 #include<LittleFS.h>
 #define HAL_FS LittleFS
 void            _HAL_analogFrequency(uint8_t pin,size_t f=H4T_PWM_DEFAULT);
@@ -70,10 +77,11 @@ void            _HAL_analogWrite(uint8_t pin, uint32_t value);
 void            _HAL_attachAnalogPin(uint8_t pin);
 void            _HAL_detachAnalogPin(uint8_t pin);
 void            _HAL_feedWatchdog();
-uint32_t        _HAL_freeHeap();
+uint32_t        _HAL_freeHeap(uint32_t caps=H4T_DEFAULT_CAPS);
 bool            _HAL_isAnalogInput(uint8_t p);
 bool            _HAL_isAnalogOutput(uint8_t p);
-uint32_t        _HAL_maxHeapBlock();
+uint32_t        _HAL_maxHeapBlock(uint32_t caps=H4T_DEFAULT_CAPS);
+uint32_t        _HAL_minHeapBlock(uint32_t caps=H4T_DEFAULT_CAPS);
 std::string     _HAL_uniqueName(const std::string& prefix);
 std::string     _HAL_macAddress();
 
