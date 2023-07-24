@@ -19,4 +19,5 @@ class mbx {
         static  void            clear(uint8_t*);
         static  uint8_t*        getMemory(size_t size);
         static  void            dump(size_t slice=32);
+        static  uint8_t*        realloc(uint8_t* p, size_t size);
 };

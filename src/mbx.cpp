@@ -30,6 +30,7 @@ No warranties are given. The license may not give you all of the permissions nec
 For example, other rights such as publicity, privacy, or moral rights may limit how you use the material.
 */
 #include "H4AsyncTCP.h"
+#include "mbx.h"
 
 mbx::mbx(uint8_t* p,size_t s,bool copy,uint8_t f): len(s),managed(copy),flags(f){
     if(managed){
@@ -75,4 +76,17 @@ void mbx::            dump(size_t slice){
     Serial.println();
     for(auto &p:pool) dumphex(p,slice);
 #endif
+}
+uint8_t *mbx::realloc(uint8_t *p, size_t size)
+{
+    if (pool.count(p)){
+        auto ptr = static_cast<uint8_t *>(malloc(size));
+        H4T_PRINT2("%p %d --> %p\n", p, size, ptr);
+        if (ptr){
+            clear(p);
+            pool.insert(ptr);
+            return ptr;
+        }
+    }
+    return nullptr;
 }
