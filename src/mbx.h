@@ -7,7 +7,7 @@ class mbx {
     public:
         static  H4T_MEM_POOL  pool;
                 bool            managed;
-                int             len=0;
+                size_t          len=0;
                 uint8_t*        data=nullptr;
                 uint8_t         flags=0;
         mbx(){}

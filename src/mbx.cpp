@@ -58,7 +58,7 @@ void mbx::clear(uint8_t* p){
     } else H4T_PRINT2("INSANITY? %p NOT IN POOL!\n",p);
 }
 
-void mbx::clear(){ clear(data); }
+void mbx::clear(){ if(managed) clear(data); }
 
 uint8_t* mbx::getMemory(size_t size){
     uint8_t* mm=static_cast<uint8_t*>(malloc(size));
