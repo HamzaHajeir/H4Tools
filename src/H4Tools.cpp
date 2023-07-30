@@ -76,7 +76,7 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
         return std::find(adc.begin(),adc.end(),p)!=adc.end();
     }
     uint32_t    _HAL_maxHeapBlock(uint32_t caps){ return ESP.getMaxFreeBlockSize(); }
-    uint32_t    _HAL_minHeapBlock(uint32_t caps){ return 0 }
+    uint32_t    _HAL_minHeapBlock(uint32_t caps){ return _HAL_maxHeapBlock(caps); }
     std::string _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(_HAL_macAddress()); }
     std::string _HAL_macAddress() { return stringFromInt(ESP.getChipId(),"%06X"); }
 #endif
