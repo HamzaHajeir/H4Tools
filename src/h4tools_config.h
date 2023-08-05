@@ -35,7 +35,11 @@
     #define H4T_PRINT4(...)
 
 #endif
+#ifdef CONFIG_IDF_TARGET_ESP32S3
+#define H4T_PWM_DEFAULT         10000
+#else
 #define H4T_PWM_DEFAULT         48000
+#endif
 
 #ifdef ARDUINO_ARCH_ESP8266
     #define H4T_HEAP_SAFETY      3000
