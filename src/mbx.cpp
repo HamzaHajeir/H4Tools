@@ -37,12 +37,12 @@ mbx::mbx(uint8_t* p,size_t s,bool copy,uint8_t f): len(s),managed(copy),flags(f)
         data=getMemory(len);
         if(data) {
             memcpy(data,p,len);
-            H4T_PRINT2("MBX %p len=%d COPIED FROM %p POOL=%d\n",(void*) data,len,p,pool.size());
+            H4T_PRINT1("MBX %p len=%d COPIED FROM %p POOL=%d\n",(void*) data,len,p,pool.size());
         }
-        else H4T_PRINT2("MBX %p len=%d MALLOC FAIL\n",(void*) data,len);
+        else H4T_PRINT1("MBX %p len=%d MALLOC FAIL\n",(void*) data,len);
     } 
     else {
-        H4T_PRINT2("MBX %p len=%d UNMANAGED POOL=%d\n",p,len,pool.size());
+        H4T_PRINT1("MBX %p len=%d UNMANAGED POOL=%d\n",p,len,pool.size());
         data=p;
     }
 }
@@ -51,11 +51,11 @@ mbx::mbx(uint8_t* p,size_t s,bool copy,uint8_t f): len(s),managed(copy),flags(f)
 //
 void mbx::clear(uint8_t* p){
     if(pool.count(p)) {
-        H4T_PRINT2("MBX DEL BLOCK %p\n",p);
+        H4T_PRINT1("MBX DEL BLOCK %p\n",p);
         free(p);
         pool.erase(p);
-        H4T_PRINT2("MBX DEL %p POOL NOW %d\n",p,pool.size());
-    } else H4T_PRINT2("INSANITY? %p NOT IN POOL!\n",p);
+        H4T_PRINT1("MBX DEL %p POOL NOW %d\n",p,pool.size());
+    } else H4T_PRINT1("INSANITY? %p NOT IN POOL!\n",p);
 }
 
 void mbx::clear(){ if(managed) clear(data); }
@@ -64,14 +64,14 @@ uint8_t* mbx::getMemory(size_t size){
     uint8_t* mm=static_cast<uint8_t*>(malloc(size));
     if(mm){
         pool.insert(mm);
-        H4T_PRINT2("MBX GM %p len=%d POOL=%d\n",mm,size,pool.size());
-    } else H4T_PRINT2("********** MBX FAIL STATUS: FH=%u MXBLK=%u ASKED:%u\n",_HAL_freeHeap(),_HAL_maxHeapBlock(),size);
+        H4T_PRINT1("MBX GM %p len=%d POOL=%d\n",mm,size,pool.size());
+    } else H4T_PRINT1("********** MBX FAIL STATUS: FH=%u MXBLK=%u ASKED:%u\n",_HAL_freeHeap(),_HAL_maxHeapBlock(),size);
     return mm;
 }
 
 void mbx::            dump(size_t slice){
-#if H4T_DEBUG
-    H4T_PRINT1("Memory POOL DUMP s=%d\n", pool.size());
+#if H4T_DEBUG >= 2
+    H4T_PRINT2("Memory POOL DUMP s=%d\n", pool.size());
     for (auto &p:pool) Serial.printf("%p\t",p);
     Serial.println();
     for(auto &p:pool) dumphex(p,slice);
@@ -81,7 +81,7 @@ uint8_t *mbx::realloc(uint8_t *p, size_t size)
 {
     if (pool.count(p)){
         auto ptr = static_cast<uint8_t *>(malloc(size));
-        H4T_PRINT2("%p %d --> %p\n", p, size, ptr);
+        H4T_PRINT1("MBX REALLOC %p %d --> %p\n", p, size, ptr);
         if (ptr){
             clear(p);
             pool.insert(ptr);

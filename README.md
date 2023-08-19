@@ -4,7 +4,7 @@
 
 ## ArduinoIDE library of utility functions required by other H4 libraries
 
-## Version 0.0.6 (22/05/2023)
+## Version 0.0.7 (24/7/2023)
 - Adds `mbx::realloc` member function
 ## Version 0.0.6 (22/05/2023)
 - Moves mbx::dump() to mbx.cpp.

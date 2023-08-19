@@ -131,3 +131,10 @@ std::string flattenMap(const T& m,const std::string& fs=UNIT_SEPARATOR,const std
     flat.pop_back();
     return flat;
 }
+
+template<typename T>
+void removeDuplicates(std::vector<T>& vec) {
+    std::sort(vec.begin(), vec.end());
+    vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
+    vec.shrink_to_fit();
+}
