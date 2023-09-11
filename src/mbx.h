@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_set>
+#include "mbx.h"
 #include "h4tools_config.h"
 using H4T_MEM_POOL        =std::unordered_set<uint8_t*>;
 
