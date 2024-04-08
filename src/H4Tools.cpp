@@ -34,10 +34,28 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
 #ifdef EMBEDDED_PLATFORM
 #if defined(ARDUINO_ARCH_ESP32)
     #include "esp_task_wdt.h"
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+    #include <set>
+    std::set<uint8_t> outs;
+
+    void        _HAL_attachAnalogPin(uint8_t pin, uint32_t freq){ // fix, lmit to 16!!!
+        ledcAttach(pin, freq ? freq : H4T_PWM_DEFAULT, 10);
+        outs.insert(pin);
+    }
+    void        _HAL_detachAnalogPin(uint8_t pin){
+        if (outs.count(pin)){
+            ledcDetach(pin);
+            outs.erase(pin);
+        }
+    }
+    void        _HAL_analogFrequency(uint8_t pin,size_t f){ _HAL_detachAnalogPin(pin); _HAL_attachAnalogPin(pin, f); }
+    void        _HAL_analogWrite(uint8_t pin,uint32_t v){ ledcWrite(pin, v); }
+    bool        _HAL_isAnalogOutput(uint8_t p){ return outs.count(p); }
+#else
     uint32_t         h4channel=0;
     std::unordered_map<uint8_t , uint8_t> h4channelmap; // pin, channel
 
-    void        _HAL_attachAnalogPin(uint8_t pin){ // fix, lmit to 16!!!
+    void        _HAL_attachAnalogPin(uint8_t pin, uint32_t freq /* freq isn't used for ARDUINO<3 version */){ // fix, lmit to 16!!!
         h4channelmap[pin]=h4channel;
         _HAL_analogFrequency(pin,H4T_PWM_DEFAULT); // set default f = PWM=0 =OFF
         ledcAttachPin(pin, h4channel);
@@ -48,15 +66,15 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
             ledcDetachPin(pin);
     }
     void        _HAL_analogFrequency(uint8_t pin,size_t f){ ledcSetup(h4channelmap[pin], f, 10); }
-    
     void        _HAL_analogWrite(uint8_t pin,uint32_t f){ ledcWrite(h4channelmap[pin], f); }
+    bool        _HAL_isAnalogOutput(uint8_t p){ return h4channelmap.count(p); }
+#endif
     void        _HAL_feedWatchdog(){ esp_task_wdt_reset(); }
     uint32_t    _HAL_freeHeap(uint32_t caps){ return heap_caps_get_free_size(caps); }
     bool        _HAL_isAnalogInput(uint8_t p){
         std::vector<uint8_t> adc={5,8,10,11,12,13,14,15,16,17,18,20,21,22,23,24};
         return std::find(adc.begin(),adc.end(),p)!=adc.end();
     }
-    bool        _HAL_isAnalogOutput(uint8_t p){ return h4channelmap.count(p); }
     uint32_t    _HAL_maxHeapBlock(uint32_t caps){ return heap_caps_get_largest_free_block(caps); }
     uint32_t    _HAL_minHeapBlock(uint32_t caps){ return heap_caps_get_minimum_free_size(caps); }
     std::string _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(_HAL_macAddress()); }
@@ -65,7 +83,7 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
     extern "C" {
         #include "user_interface.h" // what for???
     }
-    void        _HAL_attachAnalogPin(uint8_t pin){}
+    void        _HAL_attachAnalogPin(uint8_t pin, uint32_t freq){}
     void        _HAL_analogFrequency(uint8_t pin,size_t f){ analogWriteFreq(f); }
     void        _HAL_analogWrite(uint8_t pin, uint32_t value){ analogWrite(pin,value); }
     void        _HAL_feedWatchdog(){ ESP.wdtFeed(); }
@@ -173,20 +191,32 @@ uint32_t hex2uint(const uint8_t* str){
     }
     return res;
 }
-
-std::string join(const H4T_VS& vs,const char* delim) {
+#if __cplusplus >= 202002L
+std::string join(const H4T_STRLIST sl,const char* delim)
+{
 	std::string rv="";
-	if(vs.size()){
+	if(sl.size()){
 		std::string sd(delim);
-		for(auto const& v:vs) rv+=v+sd;
+		for(auto const& s:sl) rv+=s+sd;
+		for(int i=0;i<sd.size();i++) rv.pop_back();		
+	}
+	return rv;
+}
+#endif
+std::string join(const H4T_VS& sl,const char* delim)
+{
+	std::string rv="";
+	if(sl.size()){
+		std::string sd(delim);
+		for(auto const& s:sl) rv+=s+sd;
 		for(int i=0;i<sd.size();i++) rv.pop_back();		
 	}
 	return rv;
 }
 
 //
-std::string encodeUTF8(const std::string& s){
-    std::string value(s);
+std::string encodeUTF8(H4T_STRIN s){
+    std::string value(s.begin(), s.end());
     size_t u=value.find("\\u");
     while(u!=std::string::npos){
         uint32_t cp=hex2uint((const uint8_t*) &value[u+2]);
@@ -215,16 +245,25 @@ std::string encodeUTF8(const std::string& s){
     return value; 
 }
 
-std::unordered_map<std::string,std::string> json2nvp(const std::string& s){
+std::unordered_map<std::string,std::string> json2nvp(H4T_STRIN s){
     std::unordered_map<std::string,std::string> J;
     if(s.size() > 7){
-        std::string json=ltrim(rtrim(ltrim(rtrim(s,']'),'['),'}'),'{');
+        std::string ss(s.begin(), s.end());
+        std::string p(rtrim(ss,']')); p = ltrim(p,'[');
+        p = rtrim(p,'}'); p = ltrim(p,'{');
+        std::string& json=p;
+        // std::string& json=ltrim(rtrim(ltrim(rtrim(s,']'),'['),'}'),'{');
         size_t i=json.find("\":");
         if(i){
+            std::string repFrom{"\\/"}, repTo{"/"};
             do{
                 size_t h=1+json.rfind("\"",i-2);
                 size_t j=json.find(",\"",i);
-                J[json.substr(h,i-h)]=encodeUTF8(replaceAll(trim(json.substr(i+2,j-(i+2)),'"'),"\\/","/"));
+                std::string pp{json.substr(i+2,j-(i+2))};
+                pp = trim(pp,'"');
+                pp = replaceAll(pp, repFrom,repTo);
+                J[json.substr(h,i-h)]=encodeUTF8(pp);
+                // J[json.substr(h,i-h)]=encodeUTF8(replaceAll(trim(sub,'"'),"\\/","/"));
                 i=json.find("\":",i+2);
             } while(i!=std::string::npos);
             return J;
@@ -233,13 +272,13 @@ std::unordered_map<std::string,std::string> json2nvp(const std::string& s){
     return {};
 }
 
-std::string lowercase(std::string s){
+std::string lowercase(H4T_STRIN s){
    std::string ucase(s);
    transform(ucase.begin(), ucase.end(),ucase.begin(), [](unsigned char c){ return std::tolower(c); } );
    return ucase;
 }
 
-std::string ltrim(const std::string& s, const char d){
+std::string ltrim(H4T_STRIN s, const char d){
 	std::string rv(s);
 	while(rv.size() && (rv.front()==d)) rv=std::string(++rv.begin(),rv.end());
 	return rv;	
@@ -251,8 +290,9 @@ std::string nvp2json(const std::unordered_map<std::string,std::string>& nvp){
   j.pop_back();
   return j.append("}");
 }
-std::string replaceAll(const std::string& s,const std::string& f,const std::string& r){
-    std::string tmp=s;
+std::string replaceAll(H4T_STRIN s,H4T_STRIN f,H4T_STRIN r){
+    std::string tmp{s.begin(), s.end()};
+    // std::string tmp=s;
     size_t pos = tmp.find(f);
     while( pos != std::string::npos){
         tmp.replace(pos, f.size(), r);
@@ -261,7 +301,7 @@ std::string replaceAll(const std::string& s,const std::string& f,const std::stri
     return tmp;
 }
 // rationalise these two!!!!!!!!!!!!!
-std::string replaceParams(const std::string& s,H4T_FN_LOOKUP f){
+std::string replaceParams(H4T_STRIN s,H4T_FN_LOOKUP f){
     int i=0;
 	int j=0;
 	std::string rv;
@@ -269,7 +309,7 @@ std::string replaceParams(const std::string& s,H4T_FN_LOOKUP f){
 	while(i < s.size()){
         if(s[i]=='%'){
             if(j){
-                std::string v=s.substr(j,i-j);
+                std::string v{std::string(s.substr(j,i-j))};
                 rv.append(f(v));
                 j=0;
             }
@@ -281,7 +321,7 @@ std::string replaceParams(const std::string& s,H4T_FN_LOOKUP f){
 	return rv.c_str();
 }
 
-std::string replaceParams(const std::string& s,H4T_NVP_MAP& nvp){
+std::string replaceParams(H4T_STRIN s,H4T_NVP_MAP& nvp){
     int i=0;
 	int j=0;
 	std::string rv;
@@ -289,7 +329,7 @@ std::string replaceParams(const std::string& s,H4T_NVP_MAP& nvp){
 	while(i < s.size()){
         if(s[i]=='%'){
             if(j){
-                std::string v=s.substr(j,i-j);
+                std::string v{std::string(s.substr(j,i-j))};
                 rv.append( nvp.count(v) ? nvp[v]:"%"+v+"%" );
                 j=0;
             }
@@ -301,24 +341,24 @@ std::string replaceParams(const std::string& s,H4T_NVP_MAP& nvp){
 	return rv.c_str();
 }
 
-std::string rtrim(const std::string& s, const char d){
+std::string rtrim(H4T_STRIN s, const char d){
 	std::string rv(s);
 	while(rv.size() && (rv.back()==d)) rv.pop_back();
 	return rv;	
 }
 
-H4T_VS split(const std::string& s, const char* delimiter){
+H4T_VS split(H4T_STRIN s, const char* delimiter){
 	std::vector<std::string> vt;
 	std::string delim(delimiter);
 	auto len=delim.size();
-	auto start = 0U;
+	std::size_t start = 0U;
 	auto end = s.find(delim);
-	while (end != std::string::npos){
-		vt.push_back(s.substr(start, end - start));
+	while (end != H4T_STRING::npos){
+		vt.push_back(std::string(s.substr(start, end - start)));
 		start = end + len;
 		end = s.find(delim, start);
 	}
-	std::string tec=s.substr(start, end);
+	std::string tec{s.substr(start, end)};
 	if(tec.size()) vt.push_back(tec);		
 	return vt;
 }
@@ -329,24 +369,26 @@ std::string stringFromInt(int i,const char* fmt){
 	return std::string(buf);
 }
 
-bool stringIsAlpha(const std::string& s){ 
-    return !(std::find_if(s.begin(), s.end(),[](char c) { return !std::isalpha(c); }) != s.end());
+bool stringIsAlpha(H4T_STRIN s)
+{
+	return !(std::find_if(s.begin(), s.end(),[](char c) { return !std::isalpha(c); }) != s.end());
 }
 
-bool stringIsNumeric(const std::string& s){ 
-    std::string abs=(s[0]=='-' || s[0]=='+') ? std::string(++s.begin(),s.end()):s; // allow leading minus
+bool stringIsNumeric(H4T_STRIN s){ 
+    std::string abs{s.substr(s[0]=='-' || s[0]=='+')}; // allow leading sign
+    // std::string abs=(s[0]=='-' || s[0]=='+') ? std::string(s.substr(1)):std::string(s); // allow leading minus
     return !s.empty() && all_of(abs.begin(), abs.end(), ::isdigit);
 }
 
-std::string trim(const std::string& s, const char d){ return(ltrim(rtrim(s,d),d)); }
+std::string trim(H4T_STRIN s, const char d){ auto r1 = rtrim(s,d); return ltrim(r1,d); }
 
-std::string uppercase(std::string s){
+std::string uppercase(H4T_STRIN s){
    std::string ucase(s);
    transform(ucase.begin(), ucase.end(),ucase.begin(), [](unsigned char c){ return std::toupper(c); } );
    return ucase;
 }
 
-std::string urlencode(const std::string &s){
+std::string urlencode(H4T_STRIN s){
     static const char lookup[]= "0123456789abcdef";
     std::string e;
     for(int i=0, ix=s.length(); i<ix; i++)
@@ -367,13 +409,13 @@ std::string urlencode(const std::string &s){
     return e;
 }
 
-std::string urldecode(const std::string &s) { /// optimise this!!!
+std::string urldecode(H4T_STRIN s) { /// optimise this!!!
     std::string ret;
     char ch;
     int i, ii;
     for (i=0; i<s.length(); i++) {
         if (int(s[i])==37) {
-            sscanf(s.substr(i+1,2).c_str(), "%x", &ii);
+            sscanf(s.substr(i+1,2).data(), "%x", &ii);
             ch=static_cast<char>(ii);
             ret+=ch;
             i=i+2;

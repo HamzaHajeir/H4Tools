@@ -41,6 +41,21 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
 #include<map>
 #include<unordered_map>
 #include<functional>
+
+#if __cplusplus >= 202002L
+#include <span>
+using H4T_STRLIST = std::span<std::string>;
+#endif
+
+#if __cplusplus >= 201606L
+#include <string_view>
+using H4T_STRIN = std::string_view;
+using H4T_STRING = std::string_view;
+#else
+using H4T_STRIN = const std::string&;
+using H4T_STRING = std::string;
+#endif
+
 #define CSTR(x) x.c_str()
 
 
@@ -74,7 +89,7 @@ using H4T_FN_LOOKUP     = std::function<std::string(const std::string&)>;
 #define HAL_FS LittleFS
 void            _HAL_analogFrequency(uint8_t pin,size_t f=H4T_PWM_DEFAULT);
 void            _HAL_analogWrite(uint8_t pin, uint32_t value);
-void            _HAL_attachAnalogPin(uint8_t pin);
+void            _HAL_attachAnalogPin(uint8_t pin, uint32_t freq=0);
 void            _HAL_detachAnalogPin(uint8_t pin);
 void            _HAL_feedWatchdog();
 uint32_t        _HAL_freeHeap(uint32_t caps=H4T_DEFAULT_CAPS);
@@ -103,26 +118,30 @@ size_t inline       getMaxPayloadSize(){ return (_HAL_maxHeapBlock() - H4T_HEAP_
 
 
 
-std::string             encodeUTF8(const std::string &);
+std::string             encodeUTF8(H4T_STRIN);
 uint32_t                hex2uint(const uint8_t* str);
+#if __cplusplus >= 202002L
+std::string 		    join(const H4T_STRLIST vs,const char* delim="\n");
+#endif
 std::string 		    join(const H4T_VS& vs,const char* delim="\n");
-std::unordered_map<std::string,std::string> json2nvp(const std::string& s);
-std::string             lowercase(std::string);
-std::string             ltrim(const std::string& s, const char d=' ');
+
+std::unordered_map<std::string,std::string> json2nvp(H4T_STRIN s);
+std::string             lowercase(H4T_STRIN);
+std::string             ltrim(H4T_STRIN s, const char d=' ');
 std::string             nvp2json(const std::unordered_map<std::string,std::string>& nvp);
 
-std::string             replaceAll(const std::string& s,const std::string& f,const std::string& r);
-std::string             replaceParams(const std::string& s,H4T_FN_LOOKUP f);
-std::string             replaceParams(const std::string& s,H4T_NVP_MAP& nvp);
-std::string             rtrim(const std::string& s, const char d=' ');
-H4T_VS                  split(const std::string& s, const char* delimiter="\n");
+std::string             replaceAll(H4T_STRIN s,H4T_STRIN f,H4T_STRIN r);
+std::string             replaceParams(H4T_STRIN s,H4T_FN_LOOKUP f);
+std::string             replaceParams(H4T_STRIN s,H4T_NVP_MAP& nvp);
+std::string             rtrim(H4T_STRIN s, const char d=' ');
+H4T_VS                  split(H4T_STRIN s, const char* delimiter="\n");
 std::string		        stringFromInt(int i,const char* fmt="%d");
-bool		            stringIsAlpha(const std::string& s);
-bool		            stringIsNumeric(const std::string& s);
-std::string             trim(const std::string& s, const char d=' ');
-std::string             uppercase(std::string);
-std::string             urldecode(const std::string &s);
-std::string             urlencode(const std::string &s);
+bool		            stringIsAlpha(H4T_STRIN s);
+bool		            stringIsNumeric(H4T_STRIN s);
+std::string             trim(H4T_STRIN s, const char d=' ');
+std::string             uppercase(H4T_STRIN);
+std::string             urldecode(H4T_STRIN s);
+std::string             urlencode(H4T_STRIN s);
 //
 template<typename T>
 std::string flattenMap(const T& m,const std::string& fs=UNIT_SEPARATOR,const std::string& rs=RECORD_SEPARATOR,std::function<std::string(const std::string&)> f=[](const std::string& s){ return s; }){
