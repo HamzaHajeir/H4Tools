@@ -79,7 +79,7 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
     uint32_t    _HAL_minHeapBlock(uint32_t caps){ return heap_caps_get_minimum_free_size(caps); }
     std::string _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(_HAL_macAddress()); }
     std::string _HAL_macAddress() { return stringFromInt((ESP.getEfuseMac() >> 24) & 0xFFFFFF,"%06X"); }
-#else
+#elif (defined(ARDUINO_ARCH_ESP8266))
     extern "C" {
         #include "user_interface.h" // what for???
     }
@@ -97,6 +97,27 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
     uint32_t    _HAL_minHeapBlock(uint32_t caps){ return _HAL_maxHeapBlock(caps); }
     std::string _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(_HAL_macAddress()); }
     std::string _HAL_macAddress() { return stringFromInt(ESP.getChipId(),"%06X"); }
+#elif defined(ARDUINO_ARCH_RP2040)
+    #include <Arduino.h>
+    void        _HAL_attachAnalogPin(uint8_t pin, uint32_t freq){}
+    void        _HAL_analogFrequency(uint8_t pin,size_t f){ analogWriteFreq(f); }
+    void        _HAL_analogWrite(uint8_t pin, uint32_t value){ analogWrite(pin,value); }
+    void        _HAL_feedWatchdog(){ rp2040.wdt_reset(); }
+    uint32_t    _HAL_freeHeap(uint32_t caps){ return rp2040.getFreeHeap(); }
+    bool        _HAL_isAnalogInput(uint8_t p){ return p>=A0 && p<=A3; }
+    bool        _HAL_isAnalogOutput(uint8_t p){         
+        std::vector<uint8_t> notpwm={18u,19u,20u,21u};
+        return std::find(notpwm.begin(),notpwm.end(),p)==notpwm.end() && p <= 28u;
+    }
+    uint32_t    _HAL_maxHeapBlock(uint32_t caps){ return 0; }
+    uint32_t    _HAL_minHeapBlock(uint32_t caps){ return 0; }
+    std::string _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(_HAL_macAddress()); }
+#ifdef ARDUINO_RASPBERRY_PI_PICO_W
+    #include <WiFi.h>
+    std::string _HAL_macAddress() { return WiFi.macAddress().c_str(); } // [ ] TEST
+#else
+    std::string _HAL_macAddress() { return ""; }
+#endif
 #endif
 //
 //
