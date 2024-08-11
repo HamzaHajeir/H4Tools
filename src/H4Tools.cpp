@@ -109,12 +109,12 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
         std::vector<uint8_t> notpwm={18u,19u,20u,21u};
         return std::find(notpwm.begin(),notpwm.end(),p)==notpwm.end() && p <= 28u;
     }
-    uint32_t    _HAL_maxHeapBlock(uint32_t caps){ return 0; }
+    uint32_t    _HAL_maxHeapBlock(uint32_t caps){ return _HAL_freeHeap()/2; } // Some estimation, might let this API users abandon it.
     uint32_t    _HAL_minHeapBlock(uint32_t caps){ return 0; }
     std::string _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(_HAL_macAddress()); }
 #ifdef ARDUINO_RASPBERRY_PI_PICO_W
     #include <WiFi.h>
-    std::string _HAL_macAddress() { return WiFi.macAddress().c_str(); } // [ ] TEST
+    std::string _HAL_macAddress() { return WiFi.macAddress().c_str(); }
 #else
     std::string _HAL_macAddress() { return ""; }
 #endif
@@ -201,7 +201,7 @@ size_t writeFile(const char* fn,const std::string& data,const char* mode){
 }
 }
 
-#endif
+#endif // EMBEDDED_PLATFORM
 
 uint32_t hex2uint(const uint8_t* str){
     size_t res = 0;
