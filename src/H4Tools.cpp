@@ -123,8 +123,8 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
 //
 //
 #if H4T_DEBUG
-void dumpvs(const H4T_VS& vs){ for(auto const& v:vs) Serial.printf("%s\n",v.data()); }
-void dumpnvp(const std::map<std::string,std::string>& ms){ for(auto const& r:ms) Serial.printf("%s=%s\n",r.first.data(),r.second.data()); }
+void dumpvs(const H4T_VS& vs){ for(auto const& v:vs) _H4T_PRINTF("%s\n",v.data()); }
+void dumpnvp(const std::map<std::string,std::string>& ms){ for(auto const& r:ms) _H4T_PRINTF("%s=%s\n",r.first.data(),r.second.data()); }
 #endif
 //
 void dumphex(const uint8_t* mem, size_t len) {
@@ -132,22 +132,22 @@ void dumphex(const uint8_t* mem, size_t len) {
         auto W=16;
         uint8_t* src;
         memcpy(&src,&mem,sizeof(uint8_t*));
-        Serial.printf("Address: 0x%08X len: 0x%X (%d)", (ptrdiff_t)src, len, len);
+        _H4T_PRINTF("Address: 0x%08X len: 0x%X (%d)", (ptrdiff_t)src, len, len);
         for(uint32_t i = 0; i < len; i++) {
-            if(i % W == 0) Serial.printf("\n[0x%08X] 0x%08X %5d:  ", (ptrdiff_t)src, i,i);
-            Serial.printf("%02X ", *src);
+            if(i % W == 0) _H4T_PRINTF("\n[0x%08X] 0x%08X %5d:  ", (ptrdiff_t)src, i,i);
+            _H4T_PRINTF("%02X ", *src);
             src++;
             //
             if(i % W == W-1 || src==mem+len){
                 size_t ff=W-((src-mem) % W);
-                for(int p=0;p<(ff % W);p++) Serial.print("   ");
-                Serial.print("  "); // stretch this for nice alignment of final fragment
-                for(uint8_t* j=src-(W-(ff%W));j<src;j++) Serial.printf("%c", isprint(*j) ? *j:'.');
+                for(int p=0;p<(ff % W);p++) _H4T_PRINTF("   ");
+                _H4T_PRINTF("  "); // stretch this for nice alignment of final fragment
+                for(uint8_t* j=src-(W-(ff%W));j<src;j++) _H4T_PRINTF("%c", isprint(*j) ? *j:'.');
                 _HAL_feedWatchdog();
             }
             _HAL_feedWatchdog();
         }
-        Serial.println();
+        _H4T_PRINTF("\n");
     }
 }
 H4T_HEAP_LIMITS heapLimits(){

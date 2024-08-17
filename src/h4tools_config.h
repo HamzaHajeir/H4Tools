@@ -1,25 +1,26 @@
 #pragma once
-#define H4T_VERSION "0.0.12"
+#define H4T_VERSION "0.0.13"
 
 #define H4T_DEBUG                   0
 
-#if H4T_DEBUG
-#ifndef H4AT_PRINTF
+#ifndef _H4AT_PRINTF
 #ifdef EMBEDDED_PLATFORM
-    #define H4T_PRINTF(...) Serial.printf(__VA_ARGS__)
+    #define _H4T_PRINTF(...) Serial.printf(__VA_ARGS__)
 #else
     #include <stdio.h>
-    #define H4AT_PRINTF(...) printf(__VA_ARGS__)
+    #define _H4T_PRINTF(...) printf(__VA_ARGS__)
 #endif
 #endif
+#if H4T_DEBUG
+    #define H4T_PRINTF(...) _H4T_PRINTF(__VA_ARGS__)
     template<int I, typename... Args>
     void H4T_PRINT(const char* fmt, Args... args) {
         #ifdef ARDUINO_ARCH_ESP32
-        // if (H4T_DEBUG >= I) H4T_PRINTF(std::string(std::string("H4T:%d: H=%u M=%u S=%u ")+fmt).c_str(),I,_HAL_freeHeap(),_HAL_maxHeapBlock(),uxTaskGetStackHighWaterMark(NULL),args...);
-        if (H4T_DEBUG >= I) H4T_PRINTF(fmt,args...);
+        // if (H4T_DEBUG >= I) _H4T_PRINTF(std::string(std::string("H4T:%d: H=%u M=%u S=%u ")+fmt).c_str(),I,_HAL_freeHeap(),_HAL_maxHeapBlock(),uxTaskGetStackHighWaterMark(NULL),args...);
+        if (H4T_DEBUG >= I) _H4T_PRINTF(fmt,args...);
         #else
-        // if (H4T_DEBUG >= I) H4T_PRINTF(std::string(std::string("H4T:%d: H=%u M=%u ")+fmt).c_str(),I,_HAL_freeHeap(),_HAL_maxHeapBlock(),args...);
-        if (H4T_DEBUG >= I) H4T_PRINTF(fmt,args...);
+        // if (H4T_DEBUG >= I) _H4T_PRINTF(std::string(std::string("H4T:%d: H=%u M=%u ")+fmt).c_str(),I,_HAL_freeHeap(),_HAL_maxHeapBlock(),args...);
+        if (H4T_DEBUG >= I) _H4T_PRINTF(fmt,args...);
         #endif
     }
     #define H4T_PRINT1(...) H4T_PRINT<1>(__VA_ARGS__)
