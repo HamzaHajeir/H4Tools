@@ -2,7 +2,10 @@
 
 # H4Tools
 
-## ArduinoIDE library of utility functions required by other H4 libraries
+## Arduino library of utility functions required by other H4 libraries
+
+## Version 0.0.12 (11/08/2024)
+- Adds support for RP2040
 
 ## Version 0.0.7 (24/7/2023)
 - Adds `mbx::realloc` member function
@@ -42,13 +45,13 @@ Licence: ![licence](https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png) Crea
 
 # What does it do?
 
-H4Tools contains common functions used by all other H4xxx libraries. Together, they provide for simple, *robust* and rapid ***asynchronous*** development if IOT apps on ESP8266 / ESP32.
+H4Tools contains common functions used by all other H4xxx libraries. Together, they provide for simple, *robust* and rapid ***asynchronous*** development if IOT apps on ESP8266 / ESP32 / RP2040.
 
-Firstly H4Tools "smooths out" differences in the hardware of ESP8266 / ESP32 that make writing cross-platform code a lot simpler, faster and easier to debug. This type of thing is usually known as a "Hardware Abstraction Layer" or "HAL".
+Firstly H4Tools "smooths out" differences in the hardware of ESP8266 / ESP32 / RP2040 that make writing cross-platform code a lot simpler, faster and easier to debug. This type of thing is usually known as a "Hardware Abstraction Layer" or "HAL".
 
 Secondly it provides a few utility functions of the kind that most programmers collect over the years and usually include / re-write them at the beginning of every project. I make no claims for any of the functions to be special or clever - they are just *my* quirky little way of doing things the way *I* like doing them. They have developed historically and also happen to be called by pretty much every piece of code I write, so - like 'em or not - you gotta have 'em! Finally, there are no doubt many different / better / faster ways of doing some of the tasks: If you think so, then you do them *your* way and spare me any advice, please :smile:
 
-Perhaps the quickest explanation for this library is to show the *other libraries* that depend on it and where it sits in the grand scheme of rapid development of asynchronous multitasking apps on ESP8266 / ESP32:
+Perhaps the quickest explanation for this library is to show the *other libraries* that depend on it and where it sits in the grand scheme of rapid development of asynchronous multitasking apps on ESP8266 / ESP32 / RP2040:
 
 ---
 
@@ -59,7 +62,7 @@ Perhaps the quickest explanation for this library is to show the *other librarie
 || Name | Provides | Notes |
 | :---: | :----------  | :--- | :--- |
 |![roadmap](assets/common/h4_icon.jpg)|[H4](https://github.com/philbowles/H4)|Scheduler/Async Timers - core of all multitasking functions| |
-|![roadmap](assets/common/tools_icon.jpg)|[H4Tools](https://github.com/philbowles/H4Tools)|'32/'8266 HAL and utility functions| :point_left: *YOU ARE HERE* |
+|![roadmap](assets/common/tools_icon.jpg)|[H4Tools](https://github.com/philbowles/H4Tools)|'32/'8266/RP2040 HAL and utility functions| :point_left: *YOU ARE HERE* |
 |![roadmap](assets/common/h4async_icon.jpg)|[H4AsyncTCP](https://github.com/philbowles/H4AsyncTCP)| Asynchronous TCP RX/TX| |
 |![roadmap](assets/common/pangolin_icon.jpg)|[H4AsyncMQTT](https://github.com/philbowles/H4AsyncMQTT)| Asynchronous MQTT c/w auto-reconnect and *full* QoS0/1/2 | |
 |![roadmap](assets/common/armadillo_icon.jpg)|[H4AsyncHTTP](https://github.com/philbowles/H4AsyncHTTP)| Asynchronous remote GET / POST etc | |
@@ -72,22 +75,25 @@ Perhaps the quickest explanation for this library is to show the *other librarie
 
 The library has been tested using the following firmware. Please do not even *think* about raising anhy issues unless you have the following correctly installed.
 
-* [ESP8266 core 3.0.2](https://github.com/esp8266/Arduino)
-* [ESP32 core 2.0.0](https://github.com/espressif/arduino-esp32)
-* [ArduinoIDE 1.8.16](https://www.arduino.cc/en/software)
+* [ESP8266 core 3.1.2](https://github.com/esp8266/Arduino)
+* [ESP32 core 3.0.4](https://github.com/espressif/arduino-esp32)
+* [RP2040 core 3.9.5](https://github.com/earlephilhower/arduino-pico)
+* [ArduinoIDE 2.3.2](https://www.arduino.cc/en/software)
 
-***N.B.***
-
-Note that PlatformIO is not in the above list. Many folk *do* use it, but you will need to create your own installation configuration.
-I am currently in discussions to add a PIO install to the standard [H4 Installer](https://github.com/philbowles/h4installer). If you are able to help / contribute to this, please get in touch!
 
 ---
 
 # Installation
 
-Soon* all H4 libraries will use the [H4 Installer](https://github.com/philbowles/h4installer). This ensures that all versions match and that other additional special functions are included e.g. Addition of optimised board definitions in H4Plugins...
+## PlatformIO
 
-...Until that's ready, install this library manually by downloading the zip file and using the ArduinoIDE to "add zip library". (Luckily, it has no extra tasks that would require the full H4 installer)
+One can get a homogeneous H4 Stack versions from the [PlatformIO H4Plugins Environment](https://github.com/hamzahajeir/h4plugins_env). One can reuse the environment directly, or copy the parts of interest in the configuration file `platformio.ini` in a new project.
+
+## Arduino IDE
+
+Simply download the zip of this repository and install as an Arduino library: `Sketch/Include Library/Add .ZIP Library...`
+
+Soon* all H4 libraries will use the [H4 Installer](https://github.com/philbowles/h4installer). This ensures that all versions match and that other additional special functions are included e.g. Addition of optimised board definitions in H4Plugins...
 
 * = Don't ask :) 
 
@@ -120,7 +126,7 @@ void        _HAL_feedWatchdog(); // You should NEVER call this - it's here for c
 bool        _HAL_isAnalogInput(uint8_t p);
 bool        _HAL_isAnalogOutput(uint8_t p);
 uint32_t    _HAL_maxHeapBlock(); // Maxium size of available memory block that can be allocated from heap
-string      _HAL_uniqueName(const string& prefix); // prefix defaults to "ESP8266" or "ESP32", appends unique H/W chip ID
+string      _HAL_uniqueName(const string& prefix); // prefix appended with unique H/W chip ID
 /*
   General purpose / string manipulation
 */
