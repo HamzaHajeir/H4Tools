@@ -34,6 +34,7 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
 #include <cstring>
 #include "mbx.h"
 
+H4AT_MEM_POOL          mbx::pool;
 mbx::mbx(uint8_t* p,size_t s,bool copy,uint8_t f): len(s),managed(copy),flags(f){
     if(managed){
         data=getMemory(len);
