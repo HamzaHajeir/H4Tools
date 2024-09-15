@@ -157,3 +157,37 @@ void removeDuplicates(std::vector<T>& vec) {
     vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
     vec.shrink_to_fit();
 }
+
+#ifndef _H4AT_PRINTF
+#ifdef EMBEDDED_PLATFORM
+    #define _H4T_PRINTF(...) Serial.printf(__VA_ARGS__)
+#else
+    #include <stdio.h>
+    #define _H4T_PRINTF(...) printf(__VA_ARGS__)
+#endif
+#endif
+#if H4T_DEBUG
+    #define H4T_PRINTF(...) _H4T_PRINTF(__VA_ARGS__)
+    template<int I, typename... Args>
+    void H4T_PRINT(const char* fmt, Args... args) {
+        #ifdef ARDUINO_ARCH_ESP32
+        // if (H4T_DEBUG >= I) _H4T_PRINTF(std::string(std::string("H4T:%d: H=%u M=%u S=%u ")+fmt).c_str(),I,_HAL_freeHeap(),_HAL_maxHeapBlock(),uxTaskGetStackHighWaterMark(NULL),args...);
+        if (H4T_DEBUG >= I) _H4T_PRINTF(fmt,args...);
+        #else
+        if (H4T_DEBUG >= I) _H4T_PRINTF(std::string(std::string("H4T:%d: H=%u M=%u ")+fmt).c_str(),I,_HAL_freeHeap(),_HAL_maxHeapBlock(),args...);
+        // if (H4T_DEBUG >= I) _H4T_PRINTF(fmt,args...);
+        #endif
+    }
+    #define H4T_PRINT1(...) H4T_PRINT<1>(__VA_ARGS__)
+    #define H4T_PRINT2(...) H4T_PRINT<2>(__VA_ARGS__)
+    #define H4T_PRINT3(...) H4T_PRINT<3>(__VA_ARGS__)
+    #define H4T_PRINT4(...) H4T_PRINT<4>(__VA_ARGS__)
+
+#else
+    #define H4T_PRINTF(...)
+    #define H4T_PRINT1(...)
+    #define H4T_PRINT2(...)
+    #define H4T_PRINT3(...)
+    #define H4T_PRINT4(...)
+
+#endif

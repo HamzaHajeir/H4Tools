@@ -33,9 +33,25 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
 #include <cstdlib>
 #include <cstring>
 #include "mbx.h"
+#include "H4Tools.h"
 
-H4AT_MEM_POOL          mbx::pool;
+H4T_MEM_POOL          mbx::pool;
+mbx& mbx::operator=(const mbx& other) {
+    data = other.data;
+    managed = other.managed;
+    len = other.len;
+    flags = other.flags;
+    return *this;
+}
+mbx& mbx::operator=(const mbx&& other) {
+    data = std::move(other.data);
+    managed = std::move(other.managed);
+    len = std::move(other.len);
+    flags = std::move(other.flags);
+    return *this;
+}
 mbx::mbx(uint8_t* p,size_t s,bool copy,uint8_t f): len(s),managed(copy),flags(f){
+    // Serial.printf("mbx::mbx(%p,%u,%d,%u) -> %p\n",p,s,copy,f,this);
     if(managed){
         data=getMemory(len);
         if(data) {
@@ -49,10 +65,17 @@ mbx::mbx(uint8_t* p,size_t s,bool copy,uint8_t f): len(s),managed(copy),flags(f)
         data=p;
     }
 }
+
+uint8_t *mbx::get()
+{
+    // Serial.printf("mbx::get() this %p data %p\n", this, data);
+	return data;
+}
 //
 // public
 //
 void mbx::clear(uint8_t* p){
+    // Serial.printf("mbx::clear(%p) exists %d\n", p, pool.count(p));
     if(pool.count(p)) {
         H4T_PRINT1("MBX DEL BLOCK %p\n",p);
         free(p);
