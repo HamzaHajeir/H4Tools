@@ -50,7 +50,7 @@ mbx& mbx::operator=(const mbx&& other) {
     flags = std::move(other.flags);
     return *this;
 }
-mbx::mbx(uint8_t* p,size_t s,bool copy,uint8_t f): len(s),managed(copy),flags(f){
+mbx::mbx(uint8_t* p,size_t s,bool copy,uint8_t f):managed(copy),len(s),flags(f){
     // Serial.printf("mbx::mbx(%p,%u,%d,%u) -> %p\n",p,s,copy,f,this);
     if(managed){
         data=getMemory(len);
