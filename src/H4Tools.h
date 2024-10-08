@@ -36,11 +36,12 @@ For example, other rights such as publicity, privacy, or moral rights may limit 
 #endif
 #include"h4tools_config.h"
 
-#include<string>
-#include<vector>
-#include<map>
-#include<unordered_map>
-#include<functional>
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <map>
+#include <unordered_map>
+#include <functional>
 
 #if __cplusplus >= 202002L
 #include <span>
