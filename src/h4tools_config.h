@@ -1,5 +1,5 @@
 #pragma once
-#define H4T_VERSION "0.0.15"
+#define H4T_VERSION "0.0.16"
 
 #define H4T_DEBUG                   0
 
